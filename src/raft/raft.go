@@ -204,27 +204,32 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (2A, 2B).
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	if rf.currentTerm<args.Term{
+	if rf.currentTerm<args.Term{ 
 		if rf.state!=Follower{
 			rf.BecomeFollower()
 		}
 		rf.currentTerm=args.Term
-	}
-	if rf.voteFor==-1 {
 		rf.voteFor=args.CandidateId
-		rf.currentTerm=args.Term
-		reply.Term=args.Term
-		reply.VoteGranted=true
-	}else {
 		reply.Term=rf.currentTerm
-		if rf.voteFor==args.CandidateId{
+		reply.VoteGranted=true
+	}else if rf.currentTerm>args.Term{
+		reply.Term=rf.currentTerm
+	}else{
+		if rf.voteFor==-1 && rf.state==Follower{
+			rf.voteFor=args.CandidateId
+			rf.currentTerm=args.Term
+			reply.Term=rf.currentTerm
 			reply.VoteGranted=true
-		}else{
-			reply.VoteGranted=false
+		}else {
+			reply.Term=rf.currentTerm
+			if rf.voteFor==args.CandidateId{
+				reply.VoteGranted=true
+			}else{
+				reply.VoteGranted=false
+			}
+			
 		}
-		
 	}
-
 }
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
@@ -282,7 +287,7 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 	}
 	if reply.VoteGranted{
 		rf.voteNum++
-		if rf.voteNum>len(rf.peers)/2{
+		if rf.voteNum>=len(rf.peers)/2+1{
 			rf.electionHeart<-true
 		}
 	}
@@ -459,7 +464,7 @@ func (rf *Raft) ticker() {
 // for any long-running work.
 //
 func (rf *Raft)RandomElectionTime(){
-	rf.electionTimeout=time.Duration(200+rand.Intn(100))
+	rf.electionTimeout=time.Duration(400+rand.Intn(200))
 }
 func (rf *Raft)RandomWaitTime() {
 	rf.waitTimeout=time.Duration(70+rand.Intn(100))
