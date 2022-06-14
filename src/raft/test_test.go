@@ -1028,6 +1028,7 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 
 		if disconnect {
 			cfg.disconnect(victim)
+			LogPrint("disconnect!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 			cfg.one(rand.Int(), servers-1, true)
 		}
 		if crash {
@@ -1039,14 +1040,16 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 			cfg.rafts[sender].Start(rand.Int())
 		}
 		// let applier threads catch up with the Start()'s
+		LogPrint("apply one --------------------------------\n")
 		cfg.one(rand.Int(), servers-1, true)
-
+		
 		if cfg.LogSize() >= MAXLOGSIZE {
 			cfg.t.Fatalf("Log size too large")
 		}
 		if disconnect {
 			// reconnect a follower, who maybe behind and
 			// needs to rceive a snapshot to catch up.
+			LogPrint("wake up!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 			cfg.connect(victim)
 			cfg.one(rand.Int(), servers, true)
 			leader1 = cfg.checkOneLeader()
