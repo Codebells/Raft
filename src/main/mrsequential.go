@@ -37,7 +37,7 @@ func main() {
 	//
 	intermediate := []mr.KeyValue{}
 	for _, filename := range os.Args[2:] {
-		file, err := os.Open(filename)
+		file, err := os.Open(filename) 
 		if err != nil {
 			log.Fatalf("cannot open %v", filename)
 		}

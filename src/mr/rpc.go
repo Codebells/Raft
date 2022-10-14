@@ -23,6 +23,35 @@ type ExampleReply struct {
 }
 
 // Add your RPC definitions here.
+type TaskArgs struct{
+	Please bool
+}
+type Task struct{
+	TaskType TaskType
+	TaskId int
+	ReducerNumber int
+	Files []string
+}
+
+type TaskState 	int
+const(
+	Working TaskState = iota
+	Waitting 
+	Done 	
+)
+type TaskType	int
+const(
+	MapTask TaskType = iota
+	ReduceTask
+	WaitTask
+	ExitTask
+)
+type Phase	int
+const(
+	MappingPhase Phase = iota
+	ReducingPhase
+	AllDone
+)
 
 
 // Cook up a unique-ish UNIX-domain socket name
